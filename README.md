@@ -174,13 +174,16 @@ yqaj-brake-benchmark/
 ├── baseline/
 │   └── criteria.py              # C1 / C2 / C3 reference implementation
 └── docs/
-    ├── INTENDED_USE.md          # full intended-use statement (incl. agent validation)
+    ├── INTENDED_USE.md          # intended-use statement (zh; incl. agent validation)
+    ├── INTENDED_USE.en.md       # intended-use statement (English)
     ├── EVALUATION.md            # scoring protocol & reporting rules
-    └── COMPLIANCE_CHECKLIST.md  # pre-publication compliance record
+    ├── COMPLIANCE_CHECKLIST.md  # pre-publication compliance record
+    └── GITHUB_HOMEPAGE.md       # repository description / topics / release copy
 ```
 
 > The full intended-use statement — including the AI-agent capability-validation protocol —
-> is in [`docs/INTENDED_USE.md`](docs/INTENDED_USE.md).
+> is in [`docs/INTENDED_USE.md`](docs/INTENDED_USE.md) (Chinese) and
+> [`docs/INTENDED_USE.en.md`](docs/INTENDED_USE.en.md) (English).
 
 ---
 
