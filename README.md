@@ -24,6 +24,67 @@ by cornering. This is what makes the dataset usable as a benchmark.
 
 ---
 
+## Intended uses
+
+This dataset is meant to be used as a **probe**, not as a training corpus. It is small and
+single-vehicle, and its value lies in the *judgement* it elicits, not in its volume.
+
+### 1. Validating detection criteria (primary engineering use)
+
+Test whether a brake-pull criterion survives a *fabricated* fault, not merely whether it
+fires on a real one. A criterion that reports a high anomaly rate here is failing, because
+the ground truth is "no fault". Compare the reference criteria (C1/C2/C3) and report both
+the false-positive rate and how the criterion handles the three confounders (braking
+intensity, cornering attitude, road/time drift).
+
+### 2. Validating AI-agent capability (primary research use)
+
+This is the use the dataset was originally built around. Because the data *looks like* a
+fault while being none, it is a test of **reasoning under a deliberately misleading
+premise** — a capability that ordinary accuracy metrics do not capture.
+
+It can be used to assess whether an agent:
+
+| Capability | What the dataset probes | Observable in |
+|---|---|---|
+| **Resistance to fabricated evidence** | Does the agent accept a plausible-looking signal at face value, or does it question the criterion that produced it? | Whether it reports "brake pull" |
+| **Confounder awareness** | Does it notice that the yaw channel is confounded by braking intensity and cornering? | Whether it uses `YMM` for normalization and `RollMM` for discrimination |
+| **Cross-source verification** | Does it bring in an independent channel / external baseline before concluding? | Whether it uses the roll channel and the history baseline |
+| **Causal vs. correlational reading** | Does it distinguish "machine state" (should be persistent) from "driving path" (can appear/disappear)? | Whether it examines the time structure of hits |
+| **Honest self-limitation** | Does it state what it *cannot* conclude from the data, or does it overclaim? | Whether it declares its evidential boundaries |
+| **Methodological contribution** | Does it go beyond "detect/not detect" to propose and test a better criterion? | Whether it produces something like C3 |
+
+> **Benchmarking note.** A useful protocol is a *blind* run: give the agent only the
+> `records` array (not `ground_truth`, not the README), ask whether the vehicle has a
+> brake-pull fault, and record the answer and reasoning. This is precisely the setup under
+> which the dataset was validated (see `docs/EVALUATION.md` §2). Because the correct answer
+> is "no fault", and because the yaw channel is genuinely confounded, the task
+> discriminates between agents that reason about causality and agents that pattern-match
+> on a single channel.
+
+### 3. Methodological comparison
+
+Serve as a small, fully-labelled counterexample set for comparing detection or
+normalization methods (absolute thresholds, ratio metrics, regression residuals,
+confounder-exclusion variants). Because the ground truth is *negative*, it exposes
+false-positive behaviour that positive-only test sets hide.
+
+### 4. Education and demonstration
+
+Illustrate, with real data, why absolute thresholds fail under uncontrolled conditions and
+why normalization and independent-channel cross-checking matter — useful in teaching
+signal-processing-in-the-wild or automotive diagnostics.
+
+### What it is *not* for
+
+- **Training a general brake-pull classifier.** Too small, one vehicle, one session.
+- **Measuring recall / coverage.** There are no positive (real-fault) samples; see
+  `docs/EVALUATION.md` §6.
+- **Claiming a method is "production-ready".** Passing here shows robustness to one
+  fabricated fault, not general fitness.
+
+---
+
 ## Datasets
 
 | File | Records | Role |
@@ -158,5 +219,45 @@ C3 仅 2.6%）；③测的是"抵御伪故障"这一可迁移能力。
 
 **它不能做什么**：38 条、单一车辆、5 分钟会话——不构成通用基准，只应作为
 **对抗性/鲁棒性专项测试集**，不能替代多车型大数据集。
+
+### 用途说明
+
+本数据集是一把**探针**，不是训练语料。它小、且只有单一车辆，价值在于"它逼出的判断"，
+而不在数据量。
+
+**① 验证检测判据（工程用途）**
+测一个偏刹判据能否抵御*伪造的*故障，而不只是它能否在真实故障上报警。在这份数据上
+报出高异常率的判据，恰恰是**失败**的判据（因为真值是"无故障"）。建议报告误报率，
+并说明判据如何处理三个混杂因子（制动强度、转向姿态、路况/时间漂移）。
+
+**② 验证 AI 智能体能力（研究用途，本数据集最初的建库动机）**
+数据*看起来像*故障、实际不是，因此它检验的是**在刻意误导的前提下推理的能力**——
+这是常规准确率指标捕捉不到的。可用于考察智能体是否具备：
+
+| 能力 | 本数据集考察什么 | 可观察的标志 |
+|---|---|---|
+| **抵御伪造证据** | 是否照单全收一个貌似合理的信号，还是质疑产生它的判据？ | 是否报出"偏刹" |
+| **混杂因子意识** | 是否察觉横摆通道被制动强度与转向混杂？ | 是否用 `YMM` 归一化、用 `RollMM` 判别 |
+| **跨源交叉验证** | 下结论前是否引入独立通道/外部基线？ | 是否使用侧倾通道与历史基线 |
+| **因果 vs. 相关** | 是否区分"机械状态"（应持续）与"行驶路径"（可忽有忽无）？ | 是否考察命中的时间结构 |
+| **诚实的自我限定** | 是否说明"从数据得不出什么"，还是过度断言？ | 是否声明其证据边界 |
+| **方法论贡献** | 是否超越"检出/未检出"，提出并检验更好的判据？ | 是否产出类似 C3 的东西 |
+
+> **基准测试要点**：建议采用**盲测**——只给智能体 `records` 数组（不给 `ground_truth`、
+> 不给 README），问"该车是否存在偏刹故障"，记录答案与推理过程。这正是本数据集当初被
+> 验证时的设置（见 `docs/EVALUATION.md` §2）。由于正确答案是"无故障"，且横摆通道确实
+> 被混杂，该任务能区分"做因果推理的智能体"与"在单通道上做模式匹配的智能体"。
+
+**③ 方法论对比**
+作为一个小规模、完全标注的**反例集**，用于对比检测或归一化方法（绝对阈值、比值指标、
+回归残差、混杂排除变体）。因为真值是*负*的，它能暴露只含正样本的测试集所掩盖的
+误报行为。
+
+**④ 教学与演示**
+用真实数据说明：为什么绝对阈值在非受控条件下会失效，以及归一化与独立通道交叉验证
+为何重要——适用于"真实世界信号处理"或汽车诊断的教学。
+
+**它不适合做什么**：训练通用偏刹分类器（太小、单车型、单次会话）；测量召回率/覆盖率
+（无正样本）；宣称某方法"可上线"（通过此处只说明能抵御一次伪造故障，不代表通用适用性）。
 
 发布前必须完成：车型脱敏、确认数据发布授权、删除原始导出文件中的商业推广与任务指令。
