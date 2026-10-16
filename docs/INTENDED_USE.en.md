@@ -133,7 +133,7 @@ Record **present / absent per dimension** rather than a single score:
 For calibration, a first validation of this dataset recorded an analysis exhibiting the
 following capability set (see the paper *Independent Insight of an AI Agent into Real-World
 Automotive Modal Data: A Falsification-Oriented Analysis of a Double-Blind Adversarial
-Test*)：
+Test*):
 
 - **Criterion critique** — identified that the absolute threshold omits excitation
   normalisation (corr(YawMM,YMM) = 0.600);
