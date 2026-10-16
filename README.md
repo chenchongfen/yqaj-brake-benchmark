@@ -201,7 +201,8 @@ See `docs/EVALUATION.md` for the reporting protocol.
 ## Changelog
 
 - **v1.0.0** — initial release: 38-record adversarial set + two baselines + reference
-  criteria.
+  criteria. Adds an "Intended uses" section (incl. AI-agent capability validation) and an
+  agent-evaluation protocol in `docs/EVALUATION.md` §7.2.
 
 ---
 
