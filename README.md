@@ -43,6 +43,8 @@ This is the use the dataset was originally built around. Because the data *looks
 fault while being none, it is a test of **reasoning under a deliberately misleading
 premise** — a capability that ordinary accuracy metrics do not capture.
 
+> **Full statement:** see [`docs/INTENDED_USE.md`](docs/INTENDED_USE.md).
+
 It can be used to assess whether an agent:
 
 | Capability | What the dataset probes | Observable in |
@@ -172,8 +174,13 @@ yqaj-brake-benchmark/
 ├── baseline/
 │   └── criteria.py              # C1 / C2 / C3 reference implementation
 └── docs/
-    └── EVALUATION.md            # scoring protocol & reporting rules
+    ├── INTENDED_USE.md          # full intended-use statement (incl. agent validation)
+    ├── EVALUATION.md            # scoring protocol & reporting rules
+    └── COMPLIANCE_CHECKLIST.md  # pre-publication compliance record
 ```
+
+> The full intended-use statement — including the AI-agent capability-validation protocol —
+> is in [`docs/INTENDED_USE.md`](docs/INTENDED_USE.md).
 
 ---
 
