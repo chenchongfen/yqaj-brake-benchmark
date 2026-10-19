@@ -117,24 +117,27 @@ def main(path):
         print("%-6s %-42s %8d %9.1f%%"
               % (name, fn.__doc__.splitlines()[0].strip(), hits, 100.0 * hits / n))
 
-    # --- normalized comparison against same-day baseline, if available ---
+    # --- normalized metric summary for the session itself ---
+    a = [ywr(r) for r in recs if ywr(r) is not None]
+    print("\n--- normalized metric YWR = YawMM / YMM (session) ---")
+    print("session      n=%3d  median=%.3f  mean=%.3f"
+          % (len(a), median(a), sum(a) / len(a)))
+
+    # --- optional external baseline; NOT shipped with this repository ---
     base_path = os.path.join(os.path.dirname(path), "same_day_baseline.json")
     if os.path.exists(base_path):
         brecs, _ = load(base_path)
-        a = [ywr(r) for r in recs if ywr(r) is not None]
         b = [ywr(r) for r in brecs if ywr(r) is not None]
-        print("\n--- normalized metric YWR (session vs same-day baseline) ---")
-        print("session      n=%3d  median=%.3f  mean=%.3f"
-              % (len(a), median(a), sum(a) / len(a)))
-        print("same-day     n=%3d  median=%.3f  mean=%.3f"
+        print("\n--- session vs baseline at %s ---" % os.path.basename(base_path))
+        print("baseline     n=%3d  median=%.3f  mean=%.3f"
               % (len(b), median(b), sum(b) / len(b)))
-        print("Welch t = %.2f"
-              % welch_t(a, b))
-        print("(interpret against the baseline definition reported above; see NOTE)")
-        print("\nNOTE: the sign and magnitude of this t depend on how the baseline is")
-        print("drawn (same-day window vs nearest-N records). Report the baseline")
-        print("definition alongside the number; do not compare t across studies")
-        print("that used different baselines.")
+        print("Welch t = %.2f  (state the baseline sampling rule with this number)" % welch_t(a, b))
+    else:
+        print("\nNOTE: no external baseline shipped with this repository. The baselines")
+        print("used in the paper (same-day n=62, history n=1042) are not public, so any")
+        print("baseline t-statistic must be cited from paper/paper.zh.md together with")
+        print("its baseline definition; it cannot be recomputed here. If you supply your")
+        print("own baseline as datasets/same_day_baseline.json, it will be picked up.")
 
 
 if __name__ == "__main__":

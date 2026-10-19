@@ -95,7 +95,7 @@ GitHub 的 *About* = Description + Website + Topics。建议：
 **Release notes**:
 
 ```markdown
-## YQAJ Brake-Pull Adversarial Benchmark v1.0.0
+## YQAJ Brake-Pull Adversarial Benchmark v1.0.1
 
 A fault-free, curved-braking dataset for testing whether a detection method — or an
 AI agent — can resist a *deliberately fabricated* fault.
@@ -105,8 +105,8 @@ AI agent — can resist a *deliberately fabricated* fault.
 | File | Records | Role |
 |---|---|---|
 | `datasets/adversarial_curve_braking_38.json` | 38 | Adversarial test set; ground truth = **not** brake pull |
-| `datasets/same_day_baseline.json` | 62 | Same vehicle, same day, outside session window |
-| `datasets/history_baseline_1042.json` | 1042 | Same vehicle over ~504 days |
+| `paper/paper.zh.md` / `.html` | — | The full falsification-oriented analysis of this test |
+| `paper/fig1-adversarial-test.png` | — | Figure 1: the adversarial test schematic |
 
 ### Highlights
 
@@ -118,6 +118,8 @@ AI agent — can resist a *deliberately fabricated* fault.
   library only.
 - **Agent-validation ready** — see `docs/INTENDED_USE.md` for a blind-test protocol and
   scoring rubric.
+- **Paper included** — the full analysis is in `paper/`, including an erratum (Appendix F)
+  documenting a corrected, previously non-reproducible baseline statistic.
 
 ### What it is NOT
 
@@ -128,6 +130,14 @@ Small (38 records), single vehicle, single session, **no positive samples**. It 
 ### License
 
 CC BY 4.0. See `LICENSE` for the attribution format.
+
+### Note on scope
+
+This release ships **only** the adversarial set. The two same-vehicle ordinary-driving
+baselines used during the original analysis (n=62 same-day, n=1042 history) are not
+included: they do not serve the adversarial task and would offer solvers a distributional
+shortcut. Baseline statistics are therefore cited from `paper/` rather than reproducible
+from this repository alone.
 ```
 
 ---

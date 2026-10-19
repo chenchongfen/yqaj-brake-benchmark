@@ -92,11 +92,20 @@ signal-processing-in-the-wild or automotive diagnostics.
 | File | Records | Role |
 |---|---|---|
 | `datasets/adversarial_curve_braking_38.json` | 38 | **The adversarial test set.** One session, ground truth = *not* brake pull. |
-| `datasets/same_day_baseline.json` | 62 | Same vehicle, same day, outside the session window. Strictest external baseline. |
-| `datasets/history_baseline_1042.json` | 1042 | Same vehicle over ~504 days, ordinary driving. Reference distribution. |
 
 Vehicle is anonymized as `VehicleA (2010 B-class sedan)`. Sensor mounted on the
 gear-lever console.
+
+> **Why only one dataset ships here.** The published release contains exactly one file:
+> the adversarial set, which is the object under test. The two comparison distributions
+> used during the original analysis (a same-day baseline, `n=62`, and a long-term history
+> baseline, `n=1042`, both from the same vehicle) are **not included**, because they are
+> ordinary-driving records from the same vehicle and add nothing to the adversarial task —
+> whereas they would hand a solver an easy shortcut ("this distribution is just normal
+> driving"), diluting the test. The paper (`paper/`) reports the analysis that used them;
+> the numbers it quotes are traceable there, and re-deriving them requires the private
+> baselines, which is why the paper — not this repository — is the reference for those
+> statistics.
 
 ---
 
@@ -142,9 +151,12 @@ all of it. The lesson generalizes: **failures in threshold-based detection syste
 live in the criterion, not the sensor.**
 
 > ⚠️ **Note on the baseline comparison.** Whether the session's normalized metric differs
-> from baseline depends on how the baseline is drawn (same-day window → smaller `n`,
-> nearest-N → larger `n`). Always report the baseline definition with any t-statistic; do
-> not compare t values across studies that used different baselines.
+> from a normal-driving baseline depends on how that baseline is drawn (same-day window →
+> smaller `n`, nearest-N → larger `n`). Always report the baseline definition with any
+> t-statistic; do not compare t values across studies that used different baselines.
+> Because the baseline sets are not shipped here, any baseline t-statistic must be cited
+> from `paper/paper.zh.md` together with the baseline definition it used — it cannot be
+> reproduced from this repository alone.
 
 ---
 
@@ -166,13 +178,15 @@ yqaj-brake-benchmark/
 ├── README.md
 ├── LICENSE                      # see Licensing & privacy below
 ├── datasets/
-│   ├── adversarial_curve_braking_38.json
-│   ├── same_day_baseline.json
-│   └── history_baseline_1042.json
+│   └── adversarial_curve_braking_38.json
 ├── schema/
 │   └── SCHEMA.md                # field definitions
 ├── baseline/
 │   └── criteria.py              # C1 / C2 / C3 reference implementation
+├── paper/
+│   ├── paper.zh.md              # the paper (Markdown source)
+│   ├── paper.zh.html            # the paper (self-contained HTML, figure embedded)
+│   └── fig1-adversarial-test.png
 └── docs/
     ├── INTENDED_USE.md          # intended-use statement (zh; incl. agent validation)
     ├── INTENDED_USE.en.md       # intended-use statement (English)
@@ -180,6 +194,13 @@ yqaj-brake-benchmark/
     ├── COMPLIANCE_CHECKLIST.md  # pre-publication compliance record
     └── GITHUB_HOMEPAGE.md       # repository description / topics / release copy
 ```
+
+> The paper — *Independent Insight of an AI Agent into Real-World Automotive Modal Data: A
+> Falsification-Oriented Analysis of a Double-Blind Adversarial Test on a Fault-Free
+> Vehicle* — is in [`paper/paper.zh.md`](paper/paper.zh.md) (source) and
+> [`paper/paper.zh.html`](paper/paper.zh.html) (self-contained, open in a browser). It is
+> the reference document for every statistic this repository cites, including the
+> baseline-comparison numbers and the erratum in its Appendix F.
 
 > The full intended-use statement — including the AI-agent capability-validation protocol —
 > is in [`docs/INTENDED_USE.md`](docs/INTENDED_USE.md) (Chinese) and
@@ -194,10 +215,9 @@ Before publishing, confirm:
 - [x] **Anonymization.** Vehicle is recorded as `VehicleA`; the specific model string is
       removed.
 - [x] **Timestamps retained as-is.** Real collection times are kept (no shifting), because
-      the same-day baseline analysis depends on true time alignment. The datasets contain
-      no GPS coordinates and no personal identifiers. Time coverage is published openly:
-      adversarial set `2026-09-11 11:46–11:52`; same-day baseline `2026-09-11 11:03–21:35`;
-      history baseline `2025-05-16 … 2026-10-03`.
+      the time structure of the session is itself evidence. The dataset contains no GPS
+      coordinates and no personal identifiers. Time coverage is published openly:
+      adversarial set `2026-09-11 11:46–11:52`.
 - [x] **Publication rights confirmed.** The data holder has confirmed the records may be
       redistributed as a public dataset.
 - [x] **No promotional content.** Data files contain numbers only.
@@ -210,9 +230,16 @@ See `docs/EVALUATION.md` for the reporting protocol.
 
 ## Changelog
 
-- **v1.0.0** — initial release: 38-record adversarial set + two baselines + reference
-  criteria. Adds an "Intended uses" section (incl. AI-agent capability validation) and an
-  agent-evaluation protocol in `docs/EVALUATION.md` §7.2.
+- **v1.0.0** — initial release: the 38-record adversarial set, the C1/C2/C3 reference
+  implementation, the paper (`paper/`), and the evaluation/compliance documentation. Adds an
+  "Intended uses" section (incl. AI-agent capability validation) and an agent-evaluation
+  protocol in `docs/EVALUATION.md` §7.2.
+- **v1.0.1** — removed the two companion baseline distributions (`same_day_baseline.json`,
+  `n=62`; `history_baseline_1042.json`, `n=1042`) from the public release, leaving only the
+  adversarial set. Reason: they are ordinary-driving records that do not serve the
+  adversarial task and would provide a distributional shortcut. Added `paper/`. All docs
+  updated to match; baseline statistics are now cited from the paper rather than shipped as
+  reproducible inputs.
 
 ---
 
@@ -230,6 +257,11 @@ C3 仅 2.6%）；③测的是"抵御伪故障"这一可迁移能力。
 
 **它不能做什么**：38 条、单一车辆、5 分钟会话——不构成通用基准，只应作为
 **对抗性/鲁棒性专项测试集**，不能替代多车型大数据集。
+
+**仓库只发布这一份数据**：v1.0.1 起，分析和论文中用作对照的两组同车常规行驶数据
+（同日基线 62 条、历史基线 1042 条）**不再随仓库发布**。原因：它们对"识破伪造故障"
+这项任务没有贡献，反而会给解题方一个分布层面的捷径（"这批数据只是正常行驶"），
+削弱测试的锐度。论文中引用到这些基线的统计量，请以 `paper/` 中的论文为准。
 
 ### 用途说明
 
@@ -249,7 +281,7 @@ C3 仅 2.6%）；③测的是"抵御伪故障"这一可迁移能力。
 |---|---|---|
 | **抵御伪造证据** | 是否照单全收一个貌似合理的信号，还是质疑产生它的判据？ | 是否报出"偏刹" |
 | **混杂因子意识** | 是否察觉横摆通道被制动强度与转向混杂？ | 是否用 `YMM` 归一化、用 `RollMM` 判别 |
-| **跨源交叉验证** | 下结论前是否引入独立通道/外部基线？ | 是否使用侧倾通道与历史基线 |
+| **跨源交叉验证** | 下结论前是否引入独立通道/外部基线？ | 是否使用侧倾通道（`RollMM`）做通道间交叉验证 |
 | **因果 vs. 相关** | 是否区分"机械状态"（应持续）与"行驶路径"（可忽有忽无）？ | 是否考察命中的时间结构 |
 | **诚实的自我限定** | 是否说明"从数据得不出什么"，还是过度断言？ | 是否声明其证据边界 |
 | **方法论贡献** | 是否超越"检出/未检出"，提出并检验更好的判据？ | 是否产出类似 C3 的东西 |

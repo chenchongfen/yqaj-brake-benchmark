@@ -25,15 +25,15 @@ Establish the boundaries before choosing a use.
 |---|---|
 | **Objective ground truth** | Vehicle had no brake-pull fault; the yaw response comes from cornering. Confirmed by the experimenter's record, not inferred by an algorithm. |
 | **Discriminative power** | On the same data, different criteria give comparable, differing answers (C1 false-positive rate 31.6% vs C3 2.6%). |
-| **Reproducibility** | Every statistic is recomputable from raw fields; `baseline/criteria.py` is a reference implementation. |
+| **Reproducibility** | Every statistic about the adversarial set is recomputable from raw fields; `baseline/criteria.py` is a reference implementation. |
 | **Physical completeness** | Six-DOF amplitudes make *independent-channel cross-checking* possible (the roll channel is the discriminative one). |
-| **Temporal integrity** | Real timestamps are retained, enabling the time-clustering test and same-day baseline comparison. |
+| **Temporal integrity** | Real timestamps are retained, enabling the time-clustering test. |
 
 ### 1.2 What it does not provide (limits on use)
 
 | Limitation | Consequence |
 |---|---|
-| Small sample (38 adversarial + 62 same-day + 1042 history) | Not a statistically meaningful generalisation study |
+| Small sample (38 adversarial records only) | Not a statistically meaningful generalisation study |
 | One vehicle, one session | Conclusions do not automatically transfer to other vehicles or sensor mounts |
 | **No positive samples** (all "no fault") | **Recall / coverage cannot be measured** |
 | No RPM, no order-tracking data | Not usable for engine-type diagnostics |
@@ -95,7 +95,7 @@ capability dimension that ordinary accuracy metrics do not capture.
 - Ground truth is **known and negative** → "saw through it" and "took the bait" are cleanly
   separable;
 - Several **independent clues** exist (normalisation, roll channel, temporal structure,
-  external baseline) → depth of reasoning is observable, rather than luck.
+  an independent channel) → depth of reasoning is observable, rather than luck.
 
 ### 3.3 Blind-test setup (the crux)
 
@@ -123,7 +123,7 @@ Record **present / absent per dimension** rather than a single score:
 | **Correct conclusion** | Is it "not brake pull"? | **Required** |
 | **Criterion critique** | Does it note the absolute threshold lacks normalisation? | High |
 | **Confounder awareness** | Does it use the roll channel or a ratio metric? | High |
-| **Cross-source verification** | Does it bring in a history / same-day baseline? | Medium |
+| **Cross-source verification** | Does it cross-check against an independent channel (e.g. roll) or an external distribution? | Medium |
 | **Causal structure** | Does it examine the temporal clustering of hits? | Medium |
 | **Honest self-limitation** | Does it declare evidential boundaries ("attribution exclusion, not proof")? | Medium |
 | **Methodological contribution** | Does it propose and test a better criterion? | Bonus |
@@ -139,8 +139,8 @@ Test*):
   normalisation (corr(YawMM,YMM) = 0.600);
 - **Confounder awareness** — found 83% of hits accompanied by roll, corr(YawMM,RollMM) =
   0.850 (partial correlation 0.792);
-- **Cross-source verification** — brought in a same-vehicle history baseline for a
-  normalised comparison;
+- **Cross-source verification** — cross-checked the yaw channel against the roll channel
+  (the roll channel is what makes C3 discriminative);
 - **Causal structure** — used temporal clustering of the hit rate (5.3% → 57.9%) to
   attribute it to working conditions rather than a persistent fault;
 - **Honest self-limitation** — explicitly declared "attribution exclusion ≠ proof", and
